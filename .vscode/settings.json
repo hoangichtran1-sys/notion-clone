@@ -6,5 +6,11 @@
     },
     "[typescriptreact]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "search.exclude": {
+        "**/convex/betterAuth/_generated": true
+    },
+    "files.exclude": {
+        "**/convex/betterAuth/_generated": true
     }
 }
