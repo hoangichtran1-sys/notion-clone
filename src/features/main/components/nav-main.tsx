@@ -19,15 +19,25 @@ import { api } from "../../../../convex/_generated/api";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Kbd } from "@/components/ui/kbd";
+import { useRouter } from "next/navigation";
+import { useSearchModal } from "@/hooks/use-search-modal";
+import { useSettingDialog } from "@/hooks/use-setting-dialog";
 
 type SelectItem = "1" | "2" | "3";
 
 export const NavMain = () => {
+    const router = useRouter();
+
+    const { onOpenSearchModal } = useSearchModal();
+    const { onOpenSettingDialog } = useSettingDialog();
+
     const [selectedItem, setSelectedItem] = useState<SelectItem | null>(null);
     const create = useMutation(api.public.documents.create);
 
     const handleCreate = () => {
-        const promise = create({ title: "Untitled" });
+        const promise = create({ title: "Untitled" }).then((documentId) =>
+            router.push(`/documents/${documentId}`),
+        );
 
         toast.promise(promise, {
             loading: "Creating a new note...",
@@ -47,6 +57,7 @@ export const NavMain = () => {
                             isActive={selectedItem === "1"}
                             onClick={() => {
                                 setSelectedItem("1");
+                                onOpenSearchModal();
                             }}
                         >
                             <SearchIcon />
@@ -62,6 +73,7 @@ export const NavMain = () => {
                             isActive={selectedItem === "2"}
                             onClick={() => {
                                 setSelectedItem("2");
+                                onOpenSettingDialog();
                             }}
                         >
                             <SettingsIcon />

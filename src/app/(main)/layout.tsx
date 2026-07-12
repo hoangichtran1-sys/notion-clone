@@ -1,13 +1,16 @@
-import { AppSidebar } from "@/features/main/components/app-sidebar";
-import { requireAuth } from "@/lib/auth-utils";
+import { AppSidebar } from "@/features/main/sections/app-sidebar";
 import { SidebarProvider } from "@/components/sidebar-resizable";
 import { cookies } from "next/headers";
 import { SIDEBAR_COOKIE_KEY } from "@/constants";
-import { AppSidebarInset } from "@/features/main/components/app-sidebar-inset";
+import { AppSidebarInset } from "@/features/main/sections/app-sidebar-inset";
+import { SearchDialog } from "@/features/main/components/search-dialog";
+import { SettingDialog } from "@/features/main/components/setting-dialog";
 
-const Layout = async ({ children }: { children: React.ReactNode }) => {
-    await requireAuth();
+interface LayoutProps {
+    children: React.ReactNode;
+}
 
+const Layout = async ({ children }: LayoutProps) => {
     const cookieStore = await cookies();
 
     const sidebarState = cookieStore.get(`${SIDEBAR_COOKIE_KEY}:state`)?.value;
@@ -26,6 +29,8 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
             defaultOpen={defaultOpen}
             defaultWidth={sidebarWidth}
         >
+            <SearchDialog />
+            <SettingDialog />
             <AppSidebar>
                 <AppSidebarInset>{children}</AppSidebarInset>
             </AppSidebar>

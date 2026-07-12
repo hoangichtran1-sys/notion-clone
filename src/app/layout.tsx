@@ -5,20 +5,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { getToken } from "@/lib/auth-server";
 import { ConvexClientProvider } from "@/providers/convex-client-provider";
+import { JotaiProvider } from "@/providers/jotai-provider";
+import { EdgeStoreProvider } from "@/lib/edgestore";
 
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
-
-// const geistSans = Geist({
-//     variable: "--font-geist-sans",
-//     subsets: ["latin"],
-// });
-
-// const geistMono = Geist_Mono({
-//     variable: "--font-geist-mono",
-//     subsets: ["latin"],
-// });
 
 export const metadata: Metadata = {
     title: "Notion Clone",
@@ -54,18 +46,22 @@ export default async function RootLayout({
         >
             <body className="min-h-full flex flex-col">
                 <ConvexClientProvider initialToken={token}>
-                    <ThemeProvider
-                        attribute="class"
-                        defaultTheme="system"
-                        enableSystem
-                        disableTransitionOnChange
-                        storageKey="notion-theme"
-                    >
-                        <TooltipProvider>
-                            {children}
-                            <Toaster />
-                        </TooltipProvider>
-                    </ThemeProvider>
+                    <JotaiProvider>
+                        <EdgeStoreProvider>
+                            <ThemeProvider
+                                attribute="class"
+                                defaultTheme="system"
+                                enableSystem
+                                disableTransitionOnChange
+                                storageKey="notion-theme"
+                            >
+                                <TooltipProvider>
+                                    {children}
+                                    <Toaster />
+                                </TooltipProvider>
+                            </ThemeProvider>
+                        </EdgeStoreProvider>
+                    </JotaiProvider>
                 </ConvexClientProvider>
             </body>
         </html>

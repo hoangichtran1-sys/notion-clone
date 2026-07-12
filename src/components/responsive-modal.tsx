@@ -58,9 +58,9 @@ export function ResponsiveModal({
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="p-6">
                 <DialogHeader>
-                    <DialogTitle className="text-center">{title}</DialogTitle>
+                    <DialogTitle>{title}</DialogTitle>
                     {description && (
-                        <DialogDescription className="text-center">
+                        <DialogDescription>
                             {description}
                         </DialogDescription>
                     )}

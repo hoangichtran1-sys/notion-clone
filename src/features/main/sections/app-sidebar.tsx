@@ -10,15 +10,15 @@ import {
     SidebarMenuItem,
     SidebarMenuButton,
 } from "@/components/sidebar-resizable";
-import { NavUser } from "./nav-user";
+import { NavUser } from "../components/nav-user";
 import { GalleryVerticalEndIcon } from "lucide-react";
-import { NavDocuments } from "./nav-documents";
-import { NavMain } from "./nav-main";
+import { NavDocuments } from "../components/nav-documents";
+import { NavMain } from "../components/nav-main";
 
 export const AppSidebar = ({ children }: { children: React.ReactNode }) => {
     return (
         <>
-            <Sidebar collapsible="icon">
+            <Sidebar collapsible="offcanvas">
                 <SidebarHeader>
                     <SidebarMenu>
                         <SidebarMenuItem>

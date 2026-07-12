@@ -6,7 +6,6 @@ import { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { DocumentNode, DocumentNodeSkeleton } from "./document-node";
-import { SidebarMenuSub } from "@/components/sidebar-resizable";
 
 interface DocumentListProps {
     parenDocumentId?: Id<"documents">;
@@ -44,9 +43,9 @@ export const DocumentList = ({ parenDocumentId }: DocumentListProps) => {
     }
 
     return (
-        <SidebarMenuSub>
+        <>
             {documents.length === 0 && (
-                <p className="text-xs text-muted-foreground italic pl-6">
+                <p className="text-xs text-muted-foreground italic pl-6 line-clamp-2">
                     No pages inside
                 </p>
             )}
@@ -62,6 +61,6 @@ export const DocumentList = ({ parenDocumentId }: DocumentListProps) => {
                     onClick={() => onRedirect(document._id)}
                 />
             ))}
-        </SidebarMenuSub>
+        </>
     );
 };

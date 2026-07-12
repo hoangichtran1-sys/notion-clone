@@ -29,14 +29,14 @@ import { cn } from "@/lib/utils";
 
 const SIDEBAR_COOKIE_KEY = "sidebar";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
-const SIDEBAR_WIDTH = "16rem";
-const SIDEBAR_WIDTH_MOBILE = "18rem";
+const SIDEBAR_WIDTH = "20rem";
+const SIDEBAR_WIDTH_MOBILE = "22rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
 
 //* new constants for sidebar resizing
-const MIN_SIDEBAR_WIDTH = "14rem";
-const MAX_SIDEBAR_WIDTH = "22rem";
+const MIN_SIDEBAR_WIDTH = "18rem";
+const MAX_SIDEBAR_WIDTH = "26rem";
 
 type SidebarResizeDirection = "left" | "right";
 type SidebarCookieKind = "state" | "width";

@@ -5,18 +5,34 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
     SidebarMenuItem,
     SidebarMenuButton,
-    SidebarMenuAction,
+    SidebarMenuSub,
 } from "@/components/sidebar-resizable";
+import { Button } from "@/components/ui/button";
 import {
     Collapsible,
     CollapsibleContent,
     CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { ChevronRightIcon, FileIcon, PlusIcon } from "lucide-react";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuTrigger,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import {
+    ChevronRightIcon,
+    FileIcon,
+    MoreHorizontalIcon,
+    PlusIcon,
+    TrashIcon,
+} from "lucide-react";
 import { DocumentList } from "./document-list";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DocumentNodeProps {
     id?: Id<"documents">;
@@ -37,10 +53,24 @@ export const DocumentNode = ({
     onExpand,
     expanded,
 }: DocumentNodeProps) => {
+    const router = useRouter();
+    const isMobile = useIsMobile();
+    const user = useQuery(api.public.user.getCurrentUser);
+
     const create = useMutation(api.public.documents.create);
 
+    const archive = useMutation(api.public.documents.archive);
+
     const handleCreate = () => {
-        const promise = create({ title: "Untitled", parentDocument: id });
+        const promise = create({ title: "Untitled", parentDocument: id }).then(
+            (documentId) => {
+                if (!expanded) {
+                    onExpand?.();
+                }
+
+                router.push(`/documents/${documentId}`);
+            },
+        );
 
         toast.promise(promise, {
             loading: "Creating a new note...",
@@ -49,40 +79,94 @@ export const DocumentNode = ({
         });
     };
 
+    const handleArchived = () => {
+        if (!id) return;
+
+        const promise = archive({ id });
+
+        toast.promise(promise, {
+            loading: "Moving to trash...",
+            success: "Note moved to trash!",
+            error: "Failed to archive note.",
+        });
+    };
+
     return (
         <SidebarMenuItem>
             <Collapsible
                 key={id}
                 className="group/collapsible [&[data-state=open]>button>svg:first-child]:rotate-90"
-                defaultOpen={!!expanded}
+                open={!!expanded}
                 onOpenChange={onExpand}
             >
-                <div className="flex items-start sidebar-item-group">
+                <div className="flex items-start">
                     <CollapsibleTrigger asChild>
                         <button className="rounded-full h-8 w-5 hover:bg-sidebar-accent flex items-center justify-center">
-                            <ChevronRightIcon className="size-4 transition-transform" />
+                            <ChevronRightIcon className="size-4 transition-transform text-neutral-500" />
                             <span className="sr-only">Toggle</span>
                         </button>
                     </CollapsibleTrigger>
-                    <SidebarMenuButton onClick={onClick} isActive={active}>
-                        {documentIcon ? (
-                            <div>{documentIcon}</div>
-                        ) : (
-                            <FileIcon />
-                        )}
+                    <div className="relative flex justify-between items-center gap-1 min-w-40 sidebar-item-group">
+                        <SidebarMenuButton
+                            className="flex-1"
+                            onClick={onClick}
+                            isActive={active}
+                        >
+                            {documentIcon ? (
+                                <div>{documentIcon}</div>
+                            ) : (
+                                <FileIcon />
+                            )}
 
-                        {label}
-                    </SidebarMenuButton>
-                    <SidebarMenuAction
-                        className="opacity-0 transition-opacity duration-200 pointer-events-none [.sidebar-item-group:hover>&]:opacity-100 [.sidebar-item-group:hover>&]:pointer-events-auto"
-                        onClick={handleCreate}
-                    >
-                        <PlusIcon className="size-2" />
-                        <span className="sr-only">New page</span>
-                    </SidebarMenuAction>
+                            {label}
+                        </SidebarMenuButton>
+                        <div className="flex items-center absolute right-1 opacity-0 transition-opacity duration-200 pointer-events-none [.sidebar-item-group:hover>&]:opacity-100 [.sidebar-item-group:hover>&]:pointer-events-auto">
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        size="icon-xs"
+                                        variant="ghost"
+                                        className="shrink-0 rounded-full"
+                                        type="button"
+                                    >
+                                        <MoreHorizontalIcon className="size-4" />
+                                        <span className="sr-only">
+                                            Dropdown menu
+                                        </span>
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent
+                                    side={isMobile ? "bottom" : "right"}
+                                    align="center"
+                                    className="w-60"
+                                >
+                                    <DropdownMenuItem onClick={handleArchived}>
+                                        <TrashIcon className="size-4" />
+                                        Delete
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <div className="text-xs text-muted-foreground p-2">
+                                        Last edited by:{" "}
+                                        {user?.name || user?.email}
+                                    </div>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                            <Button
+                                size="icon-xs"
+                                variant="ghost"
+                                className="shrink-0 rounded-full"
+                                onClick={handleCreate}
+                            >
+                                <PlusIcon className="size-4" />
+                                <span className="sr-only">New page</span>
+                            </Button>
+                        </div>
+                    </div>
                 </div>
                 <CollapsibleContent>
-                    <DocumentList parenDocumentId={id} />
+                    <SidebarMenuSub>
+                        <DocumentList parenDocumentId={id} />
+                    </SidebarMenuSub>
                 </CollapsibleContent>
             </Collapsible>
         </SidebarMenuItem>
