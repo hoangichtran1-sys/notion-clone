@@ -11,7 +11,9 @@
 import type * as auth from "../auth.js";
 import type * as http from "../http.js";
 import type * as public_documents from "../public/documents.js";
+import type * as public_documents_snapshot from "../public/documents_snapshot.js";
 import type * as public_user from "../public/user.js";
+import type * as system_documents_snapshot from "../system/documents_snapshot.js";
 
 import type {
   ApiFromModules,
@@ -23,7 +25,9 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   http: typeof http;
   "public/documents": typeof public_documents;
+  "public/documents_snapshot": typeof public_documents_snapshot;
   "public/user": typeof public_user;
+  "system/documents_snapshot": typeof system_documents_snapshot;
 }>;
 
 /**

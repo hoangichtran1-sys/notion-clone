@@ -23,7 +23,7 @@ export const Hint = ({
         <Tooltip>
             <TooltipTrigger asChild>{children}</TooltipTrigger>
             <TooltipContent
-                className={cn("text-white shadow-lg", className)}
+                className={cn("text-white dark:text-black shadow-lg", className)}
                 side={side}
                 align={align}
                 sideOffset={5}

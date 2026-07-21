@@ -75,194 +75,208 @@ export interface SingleImageDropzoneProps extends React.HTMLAttributes<HTMLInput
 const SingleImageDropzone = React.forwardRef<
     HTMLInputElement,
     SingleImageDropzoneProps
->(({ dropzoneOptions, width, height, className, disabled, ...props }, ref) => {
-    const { fileStates, addFiles, removeFile, cancelUpload } = useUploader();
-    const [error, setError] = React.useState<string>();
-
-    const fileState = React.useMemo(() => fileStates[0], [fileStates]);
-    const maxSize = dropzoneOptions?.maxSize;
-
-    // Create temporary URL for image preview before upload is complete
-    const tempUrl = React.useMemo(() => {
-        if (fileState?.file) {
-            return URL.createObjectURL(fileState.file);
-        }
-        return null;
-    }, [fileState]);
-
-    // Clean up temporary URL to prevent memory leaks
-    React.useEffect(() => {
-        return () => {
-            if (tempUrl) {
-                URL.revokeObjectURL(tempUrl);
-            }
-        };
-    }, [tempUrl]);
-
-    const displayUrl = tempUrl ?? fileState?.url;
-    const isDisabled =
-        !!disabled ||
-        fileState?.status === "UPLOADING" ||
-        fileState?.status === "COMPLETE"; // Disable when upload complete
-
-    const {
-        getRootProps,
-        getInputProps,
-        isFocused,
-        isDragAccept,
-        isDragReject,
-    } = useDropzone({
-        accept: { "image/*": [] }, // Accept only image files
-        multiple: false,
-        disabled: isDisabled,
-        onDrop: (acceptedFiles, rejectedFiles) => {
-            setError(undefined);
-
-            // Handle rejections first
-            if (rejectedFiles.length > 0) {
-                if (rejectedFiles[0]?.errors[0]) {
-                    const error = rejectedFiles[0].errors[0];
-                    const code = error.code;
-
-                    // User-friendly error messages
-                    const messages: Record<string, string> = {
-                        "file-too-large": `The file is too large. Max size is ${formatFileSize(
-                            maxSize ?? 0,
-                        )}.`,
-                        "file-invalid-type": "Invalid file type.",
-                        "too-many-files": "You can only upload one file.",
-                        default: "The file is not supported.",
-                    };
-
-                    setError(messages[code] ?? messages.default);
-                }
-                return; // Exit early if there are any rejections
-            }
-
-            // Handle accepted files only if there are no rejections
-            if (acceptedFiles.length > 0) {
-                // Remove existing file before adding a new one
-                if (fileStates[0]) {
-                    removeFile(fileStates[0].key);
-                }
-                addFiles(acceptedFiles);
-            }
+>(
+    (
+        {
+            dropzoneOptions,
+            width,
+            height,
+            className,
+            disabled,
+            hasActiveSubscription,
+            ...props
         },
-        ...dropzoneOptions,
-    });
+        ref,
+    ) => {
+        const { fileStates, addFiles, removeFile, cancelUpload } =
+            useUploader();
+        const [error, setError] = React.useState<string>();
 
-    const dropZoneClassName = React.useMemo(
-        () =>
-            cn(
-                DROPZONE_VARIANTS.base,
-                isFocused && DROPZONE_VARIANTS.active,
-                isDisabled && DROPZONE_VARIANTS.disabled,
-                displayUrl && DROPZONE_VARIANTS.image,
-                isDragReject && DROPZONE_VARIANTS.reject,
-                isDragAccept && DROPZONE_VARIANTS.accept,
-                className,
-            ),
-        [
+        const fileState = React.useMemo(() => fileStates[0], [fileStates]);
+        const maxSize = dropzoneOptions?.maxSize;
+
+        // Create temporary URL for image preview before upload is complete
+        const tempUrl = React.useMemo(() => {
+            if (fileState?.file) {
+                return URL.createObjectURL(fileState.file);
+            }
+            return null;
+        }, [fileState]);
+
+        // Clean up temporary URL to prevent memory leaks
+        React.useEffect(() => {
+            return () => {
+                if (tempUrl) {
+                    URL.revokeObjectURL(tempUrl);
+                }
+            };
+        }, [tempUrl]);
+
+        const displayUrl = tempUrl ?? fileState?.url;
+        const isDisabled =
+            !!disabled ||
+            fileState?.status === "UPLOADING" ||
+            fileState?.status === "COMPLETE"; // Disable when upload complete
+
+        const {
+            getRootProps,
+            getInputProps,
             isFocused,
-            isDisabled,
-            displayUrl,
             isDragAccept,
             isDragReject,
-            className,
-        ],
-    );
+        } = useDropzone({
+            accept: { "image/*": [] }, // Accept only image files
+            multiple: false,
+            disabled: isDisabled,
+            onDrop: (acceptedFiles, rejectedFiles) => {
+                setError(undefined);
 
-    // Combined error message from dropzone or file state
-    const errorMessage = error ?? fileState?.error;
+                // Handle rejections first
+                if (rejectedFiles.length > 0) {
+                    if (rejectedFiles[0]?.errors[0]) {
+                        const error = rejectedFiles[0].errors[0];
+                        const code = error.code;
 
-    return (
-        <div className="flex flex-col items-center relative">
-            {/* {disabled && (
+                        // User-friendly error messages
+                        const messages: Record<string, string> = {
+                            "file-too-large": `The file is too large. Max size is ${formatFileSize(
+                                maxSize ?? 0,
+                            )}. ${hasActiveSubscription && "Upgrade to the pro plan for more storage space"}.`,
+                            "file-invalid-type": "Invalid file type.",
+                            "too-many-files": "You can only upload one file.",
+                            default: "The file is not supported.",
+                        };
+
+                        setError(messages[code] ?? messages.default);
+                    }
+                    return; // Exit early if there are any rejections
+                }
+
+                // Handle accepted files only if there are no rejections
+                if (acceptedFiles.length > 0) {
+                    // Remove existing file before adding a new one
+                    if (fileStates[0]) {
+                        removeFile(fileStates[0].key);
+                    }
+                    addFiles(acceptedFiles);
+                }
+            },
+            ...dropzoneOptions,
+        });
+
+        const dropZoneClassName = React.useMemo(
+            () =>
+                cn(
+                    DROPZONE_VARIANTS.base,
+                    isFocused && DROPZONE_VARIANTS.active,
+                    isDisabled && DROPZONE_VARIANTS.disabled,
+                    displayUrl && DROPZONE_VARIANTS.image,
+                    isDragReject && DROPZONE_VARIANTS.reject,
+                    isDragAccept && DROPZONE_VARIANTS.accept,
+                    className,
+                ),
+            [
+                isFocused,
+                isDisabled,
+                displayUrl,
+                isDragAccept,
+                isDragReject,
+                className,
+            ],
+        );
+
+        // Combined error message from dropzone or file state
+        const errorMessage = error ?? fileState?.error;
+
+        return (
+            <div className="flex flex-col items-center relative">
+                {/* {disabled && (
                 <div className="flex items-center justify-center absolute inset-y-0 h-full w-full bg-background/80 z-50">
                     <Spinner className="size-8" />
                 </div>
             )} */}
-            <div
-                {...getRootProps({
-                    className: dropZoneClassName,
-                    style: {
-                        width,
-                        height,
-                    },
-                })}
-            >
-                <input ref={ref} {...getInputProps()} {...props} />
+                <div
+                    {...getRootProps({
+                        className: dropZoneClassName,
+                        style: {
+                            width,
+                            height,
+                        },
+                    })}
+                >
+                    <input ref={ref} {...getInputProps()} {...props} />
 
-                {displayUrl ? (
-                    <img
-                        className="h-full w-full rounded-md object-cover"
-                        src={displayUrl}
-                        alt={fileState?.file.name ?? "uploaded image"}
-                    />
-                ) : (
-                    // Placeholder content shown when no image is selected
-                    <div
-                        className={cn(
-                            "flex flex-col items-center justify-center gap-2 text-center text-xs text-muted-foreground",
-                            isDisabled && "opacity-50",
-                        )}
-                    >
-                        <UploadCloudIcon className="mb-1 h-7 w-7" />
-                        <div className="font-medium">
-                            drag & drop an image or click to select
-                        </div>
-                        {maxSize && (
-                            <div className="text-xs">
-                                Max size: {formatFileSize(maxSize)}
-                            </div>
-                        )}
-                    </div>
-                )}
-
-                {/* Upload progress overlay */}
-                {displayUrl && fileState?.status === "UPLOADING" && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center rounded-md bg-black/70">
-                        <ProgressCircle progress={fileState.progress} />
-                    </div>
-                )}
-
-                {/* Remove/Cancel button */}
-                {displayUrl &&
-                    !disabled &&
-                    fileState &&
-                    fileState.status !== "COMPLETE" && (
-                        <button
-                            type="button"
-                            className="group pointer-events-auto absolute right-1 top-1 z-10 transform rounded-full border border-muted-foreground bg-background p-1 shadow-md transition-all hover:scale-110"
-                            onClick={(e) => {
-                                e.stopPropagation(); // Prevent triggering dropzone click
-                                if (fileState.status === "UPLOADING") {
-                                    cancelUpload(fileState.key);
-                                } else {
-                                    removeFile(fileState.key);
-                                    setError(undefined); // Clear any error when removing the file
-                                }
-                            }}
-                        >
-                            {fileState.status === "UPLOADING" ? (
-                                <XIcon className="block h-4 w-4 text-muted-foreground" />
-                            ) : (
-                                <Trash2Icon className="block h-4 w-4 text-muted-foreground" />
+                    {displayUrl ? (
+                        <img
+                            className="h-full w-full rounded-md object-cover"
+                            src={displayUrl}
+                            alt={fileState?.file.name ?? "uploaded image"}
+                        />
+                    ) : (
+                        // Placeholder content shown when no image is selected
+                        <div
+                            className={cn(
+                                "flex flex-col items-center justify-center gap-2 text-center text-xs text-muted-foreground",
+                                isDisabled && "opacity-50",
                             )}
-                        </button>
+                        >
+                            <UploadCloudIcon className="mb-1 h-7 w-7" />
+                            <div className="font-medium">
+                                drag & drop an image or click to select
+                            </div>
+                            {maxSize && (
+                                <div className="text-xs">
+                                    Max size: {formatFileSize(maxSize)}
+                                </div>
+                            )}
+                        </div>
                     )}
-            </div>
 
-            {/* Error message display */}
-            {errorMessage && (
-                <div className="mt-2 flex items-center text-xs text-destructive">
-                    <AlertCircleIcon className="mr-1 h-4 w-4" />
-                    <span>{errorMessage}</span>
+                    {/* Upload progress overlay */}
+                    {displayUrl && fileState?.status === "UPLOADING" && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center rounded-md bg-black/70">
+                            <ProgressCircle progress={fileState.progress} />
+                        </div>
+                    )}
+
+                    {/* Remove/Cancel button */}
+                    {displayUrl &&
+                        !disabled &&
+                        fileState &&
+                        fileState.status !== "COMPLETE" && (
+                            <button
+                                type="button"
+                                className="group pointer-events-auto absolute right-1 top-1 z-10 transform rounded-full border border-muted-foreground bg-background p-1 shadow-md transition-all hover:scale-110"
+                                onClick={(e) => {
+                                    e.stopPropagation(); // Prevent triggering dropzone click
+                                    if (fileState.status === "UPLOADING") {
+                                        cancelUpload(fileState.key);
+                                    } else {
+                                        removeFile(fileState.key);
+                                        setError(undefined); // Clear any error when removing the file
+                                    }
+                                }}
+                            >
+                                {fileState.status === "UPLOADING" ? (
+                                    <XIcon className="block h-4 w-4 text-muted-foreground" />
+                                ) : (
+                                    <Trash2Icon className="block h-4 w-4 text-muted-foreground" />
+                                )}
+                            </button>
+                        )}
                 </div>
-            )}
-        </div>
-    );
-});
+
+                {/* Error message display */}
+                {errorMessage && (
+                    <div className="mt-2 flex items-center text-xs text-destructive">
+                        <AlertCircleIcon className="mr-1 h-4 w-4" />
+                        <span>{errorMessage}</span>
+                    </div>
+                )}
+            </div>
+        );
+    },
+);
 SingleImageDropzone.displayName = "SingleImageDropzone";
 
 export { SingleImageDropzone };

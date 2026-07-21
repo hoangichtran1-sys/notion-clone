@@ -17,7 +17,7 @@ export const AppSidebarInset = ({ children }: AppSidebarInsetProps) => {
     return (
         <SidebarInset className="h-svh overflow-hidden">
             {documentId ? <AppNavbar documentId={documentId} /> : null}
-            <main className="flex-1 h-full overflow-y-auto px-4 py-2 dark:bg-[#1F1F1F]">
+            <main className="flex-1 h-full overflow-y-auto scroll-fade px-4 py-2 dark:bg-[#1F1F1F]">
                 {children}
             </main>
         </SidebarInset>

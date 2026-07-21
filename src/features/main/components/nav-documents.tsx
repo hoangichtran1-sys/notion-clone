@@ -38,6 +38,9 @@ export const NavDocuments = () => {
         });
     };
 
+    const sidePosition =
+        isMobile === undefined ? "right" : isMobile ? "bottom" : "right";
+
     return (
         <SidebarGroup>
             <SidebarGroupLabel>Documents</SidebarGroupLabel>
@@ -63,7 +66,7 @@ export const NavDocuments = () => {
                             </PopoverTrigger>
                             <PopoverContent
                                 className="p-0 w-72"
-                                side={isMobile ? "bottom" : "right"}
+                                side={sidePosition}
                             >
                                 <TrashBox />
                             </PopoverContent>

@@ -16,8 +16,16 @@ import { Banner } from "../components/document-id/banner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Menu, MenuSkeleton } from "../components/document-id/menu";
 import { Publish } from "../components/publish";
+import { HistorySheet } from "../components/document-id/history";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { AlarmClockIcon } from "lucide-react";
+import { AiSummary } from "../components/document-id/ai-summary";
+import { Hint } from "@/components/hint";
 
 export const AppNavbar = ({ documentId }: { documentId: Id<"documents"> }) => {
+    const [openSheetHistory, setOpenSheetHistory] = useState(false);
+
     const document = useQuery(api.public.documents.getPrivateDocument, {
         id: documentId,
     });
@@ -44,6 +52,11 @@ export const AppNavbar = ({ documentId }: { documentId: Id<"documents"> }) => {
 
     return (
         <>
+            <HistorySheet
+                document={document}
+                open={openSheetHistory}
+                onOpenChange={setOpenSheetHistory}
+            />
             <header className="flex h-14 shrink-0 items-center gap-2 dark:bg-[#1F1F1F]">
                 <div className="flex flex-1 items-center gap-2 px-3">
                     <Tooltip>
@@ -61,7 +74,19 @@ export const AppNavbar = ({ documentId }: { documentId: Id<"documents"> }) => {
                     <div className="flex items-center justify-between w-full">
                         <Title initialData={document} />
                         <div className="flex items-center gap-x-2">
+                            <AiSummary document={document} />
                             <Publish initialData={document} />
+                            <Hint text="History document">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="rounded-full"
+                                    onClick={() => setOpenSheetHistory(true)}
+                                    //title="History document"
+                                >
+                                    <AlarmClockIcon className="size-4" />
+                                </Button>
+                            </Hint>
                             <Menu documentId={document._id} />
                         </div>
                     </div>

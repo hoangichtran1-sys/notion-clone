@@ -80,6 +80,7 @@ export const CoverImageDialog = ({
                             maxSize: 1024 * 1024 * 4,
                         }}
                         disabled={isSubmitting}
+                        hasActiveSubscription={false}
                     />
                 </UploaderProvider>
             </DialogContent>

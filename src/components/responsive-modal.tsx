@@ -16,6 +16,7 @@ import {
 } from "./ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Separator } from "./ui/separator";
+import { cn } from "@/lib/utils";
 
 interface ResponsiveModalProps {
     title: string;
@@ -24,6 +25,7 @@ interface ResponsiveModalProps {
     isOpen: boolean;
     onClose: () => void;
     isSeparator?: boolean;
+    className?: string;
 }
 
 export function ResponsiveModal({
@@ -33,13 +35,16 @@ export function ResponsiveModal({
     isOpen,
     onClose,
     isSeparator = false,
+    className,
 }: ResponsiveModalProps) {
     const isMobile = useIsMobile();
 
     if (isMobile) {
         return (
             <Drawer open={isOpen} onOpenChange={onClose}>
-                <DrawerContent className="max-h-[90vh] flex flex-col">
+                <DrawerContent
+                    className={cn("max-h-[90vh] flex flex-col", className)}
+                >
                     <DrawerHeader>
                         <DrawerTitle>{title}</DrawerTitle>
                         {description && (
@@ -47,7 +52,7 @@ export function ResponsiveModal({
                         )}
                     </DrawerHeader>
                     {isSeparator && <Separator />}
-                    <div className="flex-1 overflow-y-auto p-4 pb-8">
+                    <div className="flex-1 overflow-y-auto scroll-fade p-4 pb-8">
                         {children}
                     </div>
                 </DrawerContent>
@@ -60,9 +65,7 @@ export function ResponsiveModal({
                 <DialogHeader>
                     <DialogTitle>{title}</DialogTitle>
                     {description && (
-                        <DialogDescription>
-                            {description}
-                        </DialogDescription>
+                        <DialogDescription>{description}</DialogDescription>
                     )}
                 </DialogHeader>
                 {isSeparator && <Separator />}

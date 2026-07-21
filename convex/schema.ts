@@ -14,4 +14,16 @@ export default defineSchema({
     })
         .index("by_user", ["userId"])
         .index("by_user_parent", ["userId", "parentDocument"]),
+    documentsSnapshot: defineTable({
+        documentId: v.id("documents"),
+        title: v.string(),
+        content: v.string(),
+        createdBy: v.string(),
+        message: v.string(),
+        event: v.union(
+            v.literal("create"),
+            v.literal("update"),
+            v.literal("restore"),
+        ),
+    }).index("by_documentId", ["documentId"]),
 });

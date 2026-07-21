@@ -33,7 +33,10 @@ const Error = () => {
                     <HomeIcon />
                     Return Home
                 </Button>
-                <Button variant="outline" onClick={() => router.refresh()}>
+                <Button
+                    variant="outline"
+                    onClick={() => window.location.reload()}
+                >
                     <RefreshCcwIcon className="size-4" />
                     Refresh
                 </Button>

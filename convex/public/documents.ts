@@ -2,6 +2,7 @@ import { ConvexError, v } from "convex/values";
 import { mutation, query } from "../_generated/server";
 import { verifyAuth } from "../auth";
 import { Doc, Id } from "../_generated/dataModel";
+import { internal } from "../_generated/api";
 
 export const getDocuments = query({
     handler: async (ctx) => {
@@ -111,6 +112,19 @@ export const update = mutation({
             ...rest,
         });
 
+        if (args.title || args.content) {
+            await ctx.runMutation(
+                internal.system.documents_snapshot.updateContentWithHistory,
+                {
+                    id: args.id,
+                    userId,
+                    title: args.title,
+                    content: args.content,
+                    event: "update",
+                },
+            );
+        }
+
         const documentUpdated = await ctx.db.get("documents", id);
 
         return documentUpdated;
@@ -179,7 +193,7 @@ export const create = mutation({
         const identity = await verifyAuth(ctx);
 
         const userId = identity.subject;
-        const document = await ctx.db.insert("documents", {
+        const documentId = await ctx.db.insert("documents", {
             title: args.title,
             parentDocument: args.parentDocument,
             userId,
@@ -187,7 +201,18 @@ export const create = mutation({
             isPublished: false,
         });
 
-        return document;
+        await ctx.runMutation(
+            internal.system.documents_snapshot.updateContentWithHistory,
+            {
+                id: documentId,
+                userId,
+                title: args.title,
+                content: undefined,
+                event: "create",
+            },
+        );
+
+        return documentId;
     },
 });
 
@@ -317,6 +342,15 @@ export const destroy = mutation({
                 message: "Forbidden",
                 code: "FORBIDDEN",
             });
+        }
+
+        const documentsVersion = await ctx.db
+            .query("documentsSnapshot")
+            .withIndex("by_documentId", (q) => q.eq("documentId", args.id))
+            .collect();
+
+        for (const version of documentsVersion) {
+            await ctx.db.delete("documentsSnapshot", version._id);
         }
 
         await ctx.db.delete("documents", args.id);
