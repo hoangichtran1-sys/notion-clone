@@ -10,6 +10,9 @@ const nextConfig: NextConfig = {
             },
         ],
     },
+    allowedDevOrigins: [
+        "starfish-absolute-drake.ngrok-free.app"
+    ],
 };
 
 export default nextConfig;

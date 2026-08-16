@@ -43,7 +43,7 @@ export function ResponsiveModal({
         return (
             <Drawer open={isOpen} onOpenChange={onClose}>
                 <DrawerContent
-                    className={cn("max-h-[90vh] flex flex-col", className)}
+                    className="max-h-[90vh] flex flex-col"
                 >
                     <DrawerHeader>
                         <DrawerTitle>{title}</DrawerTitle>
@@ -61,7 +61,7 @@ export function ResponsiveModal({
     }
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="p-6">
+            <DialogContent className={cn("p-6", className)}>
                 <DialogHeader>
                     <DialogTitle>{title}</DialogTitle>
                     {description && (

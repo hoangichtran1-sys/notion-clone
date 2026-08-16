@@ -39,6 +39,7 @@ export const PreviewVersionModal = ({
             onClose={onClose}
             title={`Version created at ${format(versionData.createdAt, "MMM do, yyyy")}`}
             isSeparator={true}
+            className="min-w-160"
         >
             <div className="flex flex-col gap-y-3">
                 <div className="pb-2 text-3xl font-bold wrap-break-word outlinne-none text-[#3F3F3F] dark:text-[#CFCFCF] text-left ml-6">

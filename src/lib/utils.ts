@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -29,9 +28,7 @@ export function convertBlockNoteToText(blocks: BlockNoteBlock[]): string {
 
             // 1. Trích xuất text từ mảng content của block hiện tại
             if (Array.isArray(block.content)) {
-                blockText = block.content
-                    .map((item) => item.text || "")
-                    .join("");
+                blockText = block.content.map((item) => item.text || "").join("");
             } else if (typeof block.content === "string") {
                 blockText = block.content;
             }
@@ -47,4 +44,8 @@ export function convertBlockNoteToText(blocks: BlockNoteBlock[]): string {
         })
         .filter(Boolean)
         .join("\n");
+}
+
+export function capitalizeFirst(str: string) {
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }

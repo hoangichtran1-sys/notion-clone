@@ -1,13 +1,7 @@
 import * as React from "react";
 import { type LucideIcon } from "lucide-react";
 
-import {
-    SidebarGroup,
-    SidebarGroupContent,
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
-} from "@/components/sidebar-resizable";
+import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/sidebar-resizable";
 
 export function NavSecondary({
     items,
@@ -26,7 +20,7 @@ export function NavSecondary({
                     {items.map((item) => (
                         <SidebarMenuItem key={item.title}>
                             <SidebarMenuButton asChild size="sm">
-                                <a href={item.url}>
+                                <a href={item.url} target="_blank">
                                     <item.icon />
                                     <span>{item.title}</span>
                                 </a>

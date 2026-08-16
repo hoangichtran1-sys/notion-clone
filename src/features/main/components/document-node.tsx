@@ -33,6 +33,9 @@ import { api } from "../../../../convex/_generated/api";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { ConvexError } from "convex/values";
+import { AppErrorData } from "@/types";
+import { useUpgradePlan } from "@/hooks/use-upgrade-plan";
 
 interface DocumentNodeProps {
     id?: Id<"documents">;
@@ -55,6 +58,9 @@ export const DocumentNode = ({
 }: DocumentNodeProps) => {
     const router = useRouter();
     const isMobile = useIsMobile();
+
+    const { triggerUpgradeModal } = useUpgradePlan();
+
     const user = useQuery(api.public.user.getCurrentUser);
 
     const create = useMutation(api.public.documents.create);
@@ -62,15 +68,26 @@ export const DocumentNode = ({
     const archive = useMutation(api.public.documents.archive);
 
     const handleCreate = () => {
-        const promise = create({ title: "Untitled", parentDocument: id }).then(
-            (documentId) => {
+        const promise = create({ title: "Untitled", parentDocument: id })
+            .then((documentId) => {
                 if (!expanded) {
                     onExpand?.();
                 }
 
                 router.push(`/documents/${documentId}`);
-            },
-        );
+            })
+            .catch((error) => {
+                if (error instanceof ConvexError) {
+                    const errorData = error.data as AppErrorData;
+                    console.log(errorData);
+
+                    if (errorData.code === "PAYMENT_REQUIRED") {
+                        triggerUpgradeModal();
+                    }
+                } else {
+                    toast.error("Something went wrong!");
+                }
+            });
 
         toast.promise(promise, {
             loading: "Creating a new note...",

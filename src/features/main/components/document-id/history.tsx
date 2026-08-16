@@ -52,6 +52,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { PreviewVersionModal } from "./preview-version-modal";
+import { useUpgradePlan } from "@/hooks/use-upgrade-plan";
 
 interface HistorySheetProps {
     document: Doc<"documents">;
@@ -98,6 +99,8 @@ export const HistorySheet = ({
         null,
     );
 
+    const { shouldBlock, triggerUpgradeModal, isLoading } = useUpgradePlan();
+
     const documentsVersion = useQuery(
         api.public.documents_snapshot.getDocumentsHistory,
         {
@@ -118,6 +121,11 @@ export const HistorySheet = ({
     );
 
     const onRestore = (versionId: Id<"documentsSnapshot">) => {
+        if (shouldBlock) {
+            triggerUpgradeModal();
+            return;
+        }
+
         const promise = restoreVersion({ versionId, documentId: document._id });
 
         toast.promise(promise, {
@@ -128,6 +136,11 @@ export const HistorySheet = ({
     };
 
     const onRemove = (versionId: Id<"documentsSnapshot">) => {
+        if (shouldBlock) {
+            triggerUpgradeModal();
+            return;
+        }
+
         const promise = removeVersion({ versionId, documentId: document._id });
 
         toast.promise(promise, {
@@ -267,6 +280,7 @@ export const HistorySheet = ({
                                                         onClick={() =>
                                                             onRestore(item._id)
                                                         }
+                                                        disabled={isLoading}
                                                     >
                                                         <RotateCcwIcon className="size-4" />
                                                         Restore version
@@ -275,6 +289,7 @@ export const HistorySheet = ({
                                                         onClick={() =>
                                                             onRemove(item._id)
                                                         }
+                                                        disabled={isLoading}
                                                     >
                                                         <TrashIcon className="size-4" />
                                                         Remove version

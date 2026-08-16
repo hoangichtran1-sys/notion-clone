@@ -26,4 +26,10 @@ export default defineSchema({
             v.literal("restore"),
         ),
     }).index("by_documentId", ["documentId"]),
+    subscriptions: defineTable({
+        customerId: v.string(),
+        status: v.string(),
+        isPro: v.boolean(),
+        activeSubscriptions: v.number(),
+    }).index("by_customer_id", ["customerId"]),
 });

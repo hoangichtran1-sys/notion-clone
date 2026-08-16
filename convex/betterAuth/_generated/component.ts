@@ -31,6 +31,7 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
           input:
             | {
                 data: {
+                  bio?: null | string;
                   createdAt: number;
                   email: string;
                   emailVerified: boolean;
@@ -112,6 +113,7 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
                     | "createdAt"
                     | "updatedAt"
                     | "userId"
+                    | "bio"
                     | "_id";
                   mode?: "sensitive" | "insensitive";
                   operator?:
@@ -305,6 +307,7 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
                     | "createdAt"
                     | "updatedAt"
                     | "userId"
+                    | "bio"
                     | "_id";
                   mode?: "sensitive" | "insensitive";
                   operator?:
@@ -552,6 +555,7 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
             | {
                 model: "user";
                 update: {
+                  bio?: null | string;
                   createdAt?: number;
                   email?: string;
                   emailVerified?: boolean;
@@ -570,6 +574,7 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
                     | "createdAt"
                     | "updatedAt"
                     | "userId"
+                    | "bio"
                     | "_id";
                   mode?: "sensitive" | "insensitive";
                   operator?:
@@ -790,6 +795,7 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
             | {
                 model: "user";
                 update: {
+                  bio?: null | string;
                   createdAt?: number;
                   email?: string;
                   emailVerified?: boolean;
@@ -808,6 +814,7 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
                     | "createdAt"
                     | "updatedAt"
                     | "userId"
+                    | "bio"
                     | "_id";
                   mode?: "sensitive" | "insensitive";
                   operator?:

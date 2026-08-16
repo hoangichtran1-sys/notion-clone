@@ -19,17 +19,32 @@ import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { TrashBox } from "./trash-box";
 import { useRouter } from "next/navigation";
+import { ConvexError } from "convex/values";
+import { AppErrorData } from "@/types";
+import { useUpgradePlan } from "@/hooks/use-upgrade-plan";
 
 export const NavDocuments = () => {
     const isMobile = useIsMobile();
     const router = useRouter();
+    const { triggerUpgradeModal } = useUpgradePlan();
 
     const create = useMutation(api.public.documents.create);
 
     const handleCreate = () => {
-        const promise = create({ title: "Untitled" }).then((documentId) =>
-            router.push(`/documents/${documentId}`),
-        );
+        const promise = create({ title: "Untitled" })
+            .then((documentId) => router.push(`/documents/${documentId}`))
+            .catch((error) => {
+                if (error instanceof ConvexError) {
+                    const errorData = error.data as AppErrorData;
+                    console.log(errorData);
+
+                    if (errorData.code === "PAYMENT_REQUIRED") {
+                        triggerUpgradeModal();
+                    }
+                } else {
+                    toast.error("Something went wrong!");
+                }
+            });
 
         toast.promise(promise, {
             loading: "Creating a new note...",

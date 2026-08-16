@@ -9,6 +9,7 @@ import { JotaiProvider } from "@/providers/jotai-provider";
 import { EdgeStoreProvider } from "@/lib/edgestore";
 
 import "./globals.css";
+import { SettingsProfile } from "@/components/settings-profile";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -39,25 +40,16 @@ export default async function RootLayout({
     const token = await getToken();
 
     return (
-        <html
-            lang="en"
-            suppressHydrationWarning
-            className={`${inter.className} h-full antialiased`}
-        >
+        <html lang="en" suppressHydrationWarning className={`${inter.className} h-full antialiased`}>
             <body className="min-h-full flex flex-col">
                 <ConvexClientProvider initialToken={token}>
                     <JotaiProvider>
                         <EdgeStoreProvider>
-                            <ThemeProvider
-                                attribute="class"
-                                defaultTheme="system"
-                                enableSystem
-                                disableTransitionOnChange
-                                storageKey="notion-theme"
-                            >
+                            <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange storageKey="notion-theme">
                                 <TooltipProvider>
                                     {children}
                                     <Toaster />
+                                    <SettingsProfile className="min-w-200" />
                                 </TooltipProvider>
                             </ThemeProvider>
                         </EdgeStoreProvider>

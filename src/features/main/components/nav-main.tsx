@@ -22,6 +22,9 @@ import { Kbd } from "@/components/ui/kbd";
 import { useRouter } from "next/navigation";
 import { useSearchModal } from "@/hooks/use-search-modal";
 import { useSettingDialog } from "@/hooks/use-setting-dialog";
+import { ConvexError } from "convex/values";
+import { AppErrorData } from "@/types";
+import { useUpgradePlan } from "@/hooks/use-upgrade-plan";
 
 type SelectItem = "1" | "2" | "3";
 
@@ -30,14 +33,26 @@ export const NavMain = () => {
 
     const { onOpenSearchModal } = useSearchModal();
     const { onOpenSettingDialog } = useSettingDialog();
+    const { triggerUpgradeModal } = useUpgradePlan();
 
     const [selectedItem, setSelectedItem] = useState<SelectItem | null>(null);
     const create = useMutation(api.public.documents.create);
 
     const handleCreate = () => {
-        const promise = create({ title: "Untitled" }).then((documentId) =>
-            router.push(`/documents/${documentId}`),
-        );
+        const promise = create({ title: "Untitled" })
+            .then((documentId) => router.push(`/documents/${documentId}`))
+            .catch((error) => {
+                if (error instanceof ConvexError) {
+                    const errorData = error.data as AppErrorData;
+                    console.log(errorData);
+
+                    if (errorData.code === "PAYMENT_REQUIRED") {
+                        triggerUpgradeModal();
+                    }
+                } else {
+                    toast.error("Something went wrong!");
+                }
+            });
 
         toast.promise(promise, {
             loading: "Creating a new note...",

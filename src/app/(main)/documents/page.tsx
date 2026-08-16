@@ -14,15 +14,9 @@ const Page = async () => {
 
     const user = await getCurrentUser();
 
-    const preloadedDocuments = await preloadQuery(
-        api.public.documents.getDocuments,
-        {},
-        { token },
-    );
+    const preloadedDocuments = await preloadQuery(api.public.documents.getDocuments, {}, { token });
 
-    return (
-        <DocumentsView preloadedDocuments={preloadedDocuments} user={user} />
-    );
+    return <DocumentsView preloadedDocuments={preloadedDocuments} user={user} />;
 };
 
 export default Page;

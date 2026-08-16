@@ -1,12 +1,17 @@
 import { ConvexError, v } from "convex/values";
 import { mutation, query } from "../_generated/server";
-import { verifyAuth } from "../auth";
+import { verifyAuth, verifySubscription } from "../auth";
 import { Doc, Id } from "../_generated/dataModel";
 import { internal } from "../_generated/api";
 
 export const getDocuments = query({
     handler: async (ctx) => {
-        const identity = await verifyAuth(ctx);
+        const identity = await ctx.auth.getUserIdentity();
+
+        if (!identity) {
+            return [];
+        }
+
         const userId = identity.subject;
 
         const documents = ctx.db
@@ -22,6 +27,7 @@ export const getDocuments = query({
 export const getSearch = query({
     handler: async (ctx) => {
         const identity = await verifyAuth(ctx);
+
         const userId = identity.subject;
 
         const documents = ctx.db
@@ -113,16 +119,13 @@ export const update = mutation({
         });
 
         if (args.title || args.content) {
-            await ctx.runMutation(
-                internal.system.documents_snapshot.updateContentWithHistory,
-                {
-                    id: args.id,
-                    userId,
-                    title: args.title,
-                    content: args.content,
-                    event: "update",
-                },
-            );
+            await ctx.runMutation(internal.system.documents_snapshot.updateContentWithHistory, {
+                id: args.id,
+                userId,
+                title: args.title,
+                content: args.content,
+                event: "update",
+            });
         }
 
         const documentUpdated = await ctx.db.get("documents", id);
@@ -158,9 +161,7 @@ export const archive = mutation({
         const recursiveArchive = async (documentId: Id<"documents">) => {
             const children = await ctx.db
                 .query("documents")
-                .withIndex("by_user_parent", (q) =>
-                    q.eq("userId", userId).eq("parentDocument", documentId),
-                )
+                .withIndex("by_user_parent", (q) => q.eq("userId", userId).eq("parentDocument", documentId))
                 .collect();
 
             for (const child of children) {
@@ -190,9 +191,8 @@ export const create = mutation({
         parentDocument: v.optional(v.id("documents")),
     },
     handler: async (ctx, args) => {
-        const identity = await verifyAuth(ctx);
+        const userId = await verifySubscription(ctx);
 
-        const userId = identity.subject;
         const documentId = await ctx.db.insert("documents", {
             title: args.title,
             parentDocument: args.parentDocument,
@@ -201,16 +201,13 @@ export const create = mutation({
             isPublished: false,
         });
 
-        await ctx.runMutation(
-            internal.system.documents_snapshot.updateContentWithHistory,
-            {
-                id: documentId,
-                userId,
-                title: args.title,
-                content: undefined,
-                event: "create",
-            },
-        );
+        await ctx.runMutation(internal.system.documents_snapshot.updateContentWithHistory, {
+            id: documentId,
+            userId,
+            title: args.title,
+            content: undefined,
+            event: "create",
+        });
 
         return documentId;
     },
@@ -227,11 +224,7 @@ export const getTreeMany = query({
 
         const documents = await ctx.db
             .query("documents")
-            .withIndex("by_user_parent", (q) =>
-                q
-                    .eq("userId", userId)
-                    .eq("parentDocument", args.parentDocument),
-            )
+            .withIndex("by_user_parent", (q) => q.eq("userId", userId).eq("parentDocument", args.parentDocument))
             .filter((q) => q.eq(q.field("isArchived"), false))
             .order("desc")
             .collect();
@@ -283,9 +276,7 @@ export const restore = mutation({
         const recursiveRestore = async (documentId: Id<"documents">) => {
             const children = await ctx.db
                 .query("documents")
-                .withIndex("by_user_parent", (q) =>
-                    q.eq("userId", userId).eq("parentDocument", documentId),
-                )
+                .withIndex("by_user_parent", (q) => q.eq("userId", userId).eq("parentDocument", documentId))
                 .collect();
 
             for (const child of children) {
@@ -302,10 +293,7 @@ export const restore = mutation({
         };
 
         if (existingDocument.parentDocument) {
-            const parent = await ctx.db.get(
-                "documents",
-                existingDocument.parentDocument,
-            );
+            const parent = await ctx.db.get("documents", existingDocument.parentDocument);
             if (parent?.isArchived) {
                 options.parentDocument = undefined;
             }

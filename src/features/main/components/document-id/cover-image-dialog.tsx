@@ -13,6 +13,7 @@ import { useMutation } from "convex/react";
 import { api } from "../../../../../convex/_generated/api";
 import { Id } from "../../../../../convex/_generated/dataModel";
 import { toast } from "sonner";
+import { useHasActiveSubscription } from "@/hooks/use-subscription";
 
 interface CoverImageDialogProps {
     documentId: Id<"documents">;
@@ -26,6 +27,8 @@ export const CoverImageDialog = ({
     const { openCoverImage, setOpenCoverImage, onCloseCoverImage } =
         useCoverImage();
     const { edgestore } = useEdgeStore();
+
+    const { hasActiveSubscription, isLoading } = useHasActiveSubscription();
 
     const update = useMutation(api.public.documents.update);
 
@@ -77,10 +80,12 @@ export const CoverImageDialog = ({
                     <SingleImageDropzone
                         className="w-full"
                         dropzoneOptions={{
-                            maxSize: 1024 * 1024 * 4,
+                            maxSize: !!hasActiveSubscription
+                                ? 1024 * 1024 * 128
+                                : 1024 * 1024 * 4,
                         }}
-                        disabled={isSubmitting}
-                        hasActiveSubscription={false}
+                        disabled={isSubmitting || isLoading}
+                        hasActiveSubscription={!!hasActiveSubscription}
                     />
                 </UploaderProvider>
             </DialogContent>

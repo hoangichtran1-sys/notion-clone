@@ -11,11 +11,14 @@ import { api } from "../../../../convex/_generated/api";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserMenu } from "@/components/user-menu";
 import Link from "next/link";
+import { useHasActiveSubscription } from "@/hooks/use-subscription";
+import { authClient } from "@/lib/auth-client";
 
 export const Navbar = () => {
     const scrolled = useScrollTop();
     const router = useRouter();
     const user = useQuery(api.public.user.getCurrentUser);
+    const { hasActiveSubscription, isLoading } = useHasActiveSubscription();
 
     return (
         <div
@@ -29,6 +32,7 @@ export const Navbar = () => {
                 {/* <ToggleMode /> */}
                 {user === undefined ? (
                     <>
+                        <Skeleton className="h-6 w-18 rounded-md" />
                         <Skeleton className="h-6 w-16 rounded-md" />
                         <Skeleton className="h-8 w-8 rounded-full" />
                     </>
@@ -50,6 +54,28 @@ export const Navbar = () => {
                     </>
                 ) : (
                     <>
+                        {!isLoading &&
+                            (!hasActiveSubscription ? (
+                                <Button
+                                    variant="default"
+                                    size="sm"
+                                    onClick={() =>
+                                        authClient.checkout({
+                                            slug: "Notion-Pro",
+                                        })
+                                    }
+                                >
+                                    Upgrade to Pro
+                                </Button>
+                            ) : (
+                                <Button
+                                    onClick={() => authClient.customer.portal()}
+                                    variant="outline"
+                                    size="sm"
+                                >
+                                    Billing Portal
+                                </Button>
+                            ))}
                         <Button variant="ghost" size="sm" asChild>
                             <Link href="/documents">Enter Notion</Link>
                         </Button>

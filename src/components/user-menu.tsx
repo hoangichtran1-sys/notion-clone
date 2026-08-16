@@ -1,11 +1,6 @@
 "use client";
 
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { authClient } from "@/lib/auth-client";
 import { LogOutIcon } from "lucide-react";
 import { CgProfile } from "react-icons/cg";
@@ -14,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { GeneratedAvatar } from "@/components/generated-avatar";
 import { User } from "@/types";
+import { useSettingsProfileModal } from "@/hooks/use-settings-profile-modal";
 
 interface UserMenuProps {
     user: User;
@@ -21,6 +17,7 @@ interface UserMenuProps {
 
 export const UserMenu = ({ user }: UserMenuProps) => {
     const router = useRouter();
+    const { onOpenSettingsProfileModal } = useSettingsProfileModal();
 
     const onLogout = () => {
         authClient.signOut({
@@ -49,7 +46,7 @@ export const UserMenu = ({ user }: UserMenuProps) => {
                     sideOffset={10}
                     className="w-64 md:w-48 rounded-xl shadow-md bg-white overflow-hidden right-1 top-12 text-sm font-semibold"
                 >
-                    <DropdownMenuItem className="mt-2" onClick={() => {}}>
+                    <DropdownMenuItem className="mt-2" onClick={onOpenSettingsProfileModal}>
                         <CgProfile className="size-5" />
                         My profile
                     </DropdownMenuItem>

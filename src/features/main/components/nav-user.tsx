@@ -1,5 +1,12 @@
 "use client";
-import { BadgeCheck, Bell, ChevronsUpDown, LogOut } from "lucide-react";
+import {
+    BadgeCheck,
+    Bell,
+    ChevronsUpDown,
+    CreditCardIcon,
+    LogOut,
+    SparklesIcon,
+} from "lucide-react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import {
     DropdownMenu,
@@ -20,11 +27,15 @@ import { GeneratedAvatar } from "@/components/generated-avatar";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useHasActiveSubscription } from "@/hooks/use-subscription";
+import { useSettingsProfileModal } from "@/hooks/use-settings-profile-modal";
 export function NavUser() {
     const router = useRouter();
 
     const { isMobile } = useSidebar();
     const { data, isPending } = authClient.useSession();
+
+    const { onOpenSettingsProfileModal } = useSettingsProfileModal();
 
     const onLogout = () => {
         authClient.signOut({
@@ -36,6 +47,8 @@ export function NavUser() {
             },
         });
     };
+
+    const { hasActiveSubscription, isLoading } = useHasActiveSubscription();
 
     if (isPending || !data?.user) return null;
 
@@ -102,10 +115,35 @@ export function NavUser() {
                             </div>
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
+                        {!hasActiveSubscription && !isLoading && (
+                            <>
+                                <DropdownMenuGroup>
+                                    <DropdownMenuItem
+                                        onClick={() =>
+                                            authClient.checkout({
+                                                slug: "Notion-Pro",
+                                            })
+                                        }
+                                    >
+                                        <SparklesIcon />
+                                        Upgrade to Pro
+                                    </DropdownMenuItem>
+                                </DropdownMenuGroup>
+                                <DropdownMenuSeparator />
+                            </>
+                        )}
                         <DropdownMenuGroup>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem
+                                onClick={onOpenSettingsProfileModal}
+                            >
                                 <BadgeCheck />
                                 Account
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                onClick={() => authClient.customer.portal()}
+                            >
+                                <CreditCardIcon />
+                                Billing Portal
                             </DropdownMenuItem>
                             <DropdownMenuItem>
                                 <Bell />

@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { DocumentNode, DocumentNodeSkeleton } from "./document-node";
+import { useConvexAuth } from "convex/react";
 
 interface DocumentListProps {
     parenDocumentId?: Id<"documents">;
@@ -16,6 +17,7 @@ export const DocumentList = ({ parenDocumentId }: DocumentListProps) => {
     const params = useParams();
     const router = useRouter();
 
+    const { isAuthenticated } = useConvexAuth();
     const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
     const onExpand = (documentId: string) => {
@@ -25,9 +27,9 @@ export const DocumentList = ({ parenDocumentId }: DocumentListProps) => {
         }));
     };
 
-    const documents = useQuery(api.public.documents.getTreeMany, {
+    const documents = useQuery(api.public.documents.getTreeMany, isAuthenticated ? {
         parentDocument: parenDocumentId,
-    });
+    }: "skip");
 
     const onRedirect = (documentId: string) => {
         router.push(`/documents/${documentId}`);

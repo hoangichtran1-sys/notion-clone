@@ -22,6 +22,7 @@ import { summaryDocumentIdAtom } from "@/atoms/summary-document-id";
 import { format } from "date-fns";
 import { aiSummaryGenerate } from "@/actions/ai-summary-generate";
 import { useEffect, useState } from "react";
+import { useUpgradePlan } from "@/hooks/use-upgrade-plan";
 
 interface AiSummaryProps {
     document: Doc<"documents">;
@@ -32,11 +33,22 @@ export const AiSummary = ({ document }: AiSummaryProps) => {
     const [isLoadingRepeat, setIsLoadingRepeat] = useState(false);
     const summaryDocumentId = useAtomValue(summaryDocumentIdAtom(document._id));
 
+    const {
+        triggerUpgradeModal,
+        shouldBlock,
+        isLoading: isLoadingSubscription,
+    } = useUpgradePlan();
+
     const setSummaryDocumentId = useSetAtom(
         summaryDocumentIdAtom(document._id),
     );
 
     const handleGenerate = async () => {
+        if (shouldBlock) {
+            triggerUpgradeModal();
+            return;
+        }
+
         try {
             setIsLoadingGenerate(true);
             const content = await aiSummaryGenerate({
@@ -56,6 +68,11 @@ export const AiSummary = ({ document }: AiSummaryProps) => {
     };
 
     const handleRepeat = async () => {
+        if (shouldBlock) {
+            triggerUpgradeModal();
+            return;
+        }
+
         try {
             setIsLoadingRepeat(true);
             const content = await aiSummaryGenerate({
@@ -111,12 +128,16 @@ export const AiSummary = ({ document }: AiSummaryProps) => {
                                     </EmptyMedia>
                                     <EmptyTitle>No content</EmptyTitle>
                                     <EmptyDescription className="max-w-xs text-pretty">
-                                        You&apos;re all caught up. Click generate to summarize this document.
+                                        You&apos;re all caught up. Click
+                                        generate to summarize this document.
                                     </EmptyDescription>
                                 </EmptyHeader>
                                 <EmptyContent>
                                     <Button
-                                        disabled={isLoadingGenerate}
+                                        disabled={
+                                            isLoadingGenerate ||
+                                            isLoadingSubscription
+                                        }
                                         variant="default"
                                         size="sm"
                                         onClick={handleGenerate}
@@ -154,7 +175,10 @@ export const AiSummary = ({ document }: AiSummaryProps) => {
                                         Clear
                                     </Button>
                                     <Button
-                                        disabled={isLoadingRepeat}
+                                        disabled={
+                                            isLoadingRepeat ||
+                                            isLoadingSubscription
+                                        }
                                         variant="default"
                                         size="sm"
                                         onClick={handleRepeat}

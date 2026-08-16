@@ -11,6 +11,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { GlobeIcon, CheckIcon, CopyIcon } from "lucide-react";
+import { useUpgradePlan } from "@/hooks/use-upgrade-plan";
 
 interface PublishProps {
     initialData: Doc<"documents">;
@@ -20,12 +21,19 @@ export const Publish = ({ initialData }: PublishProps) => {
     const origin = useOrigin();
     const update = useMutation(api.public.documents.update);
 
+    const { shouldBlock, triggerUpgradeModal, isLoading } = useUpgradePlan();
+
     const [copied, setCopied] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const url = `${origin}/preview/${initialData._id}`;
 
     const onPublish = async () => {
+        if (shouldBlock) {
+            triggerUpgradeModal();
+            return;
+        }
+
         try {
             setIsSubmitting(true);
             update({
@@ -127,7 +135,7 @@ export const Publish = ({ initialData }: PublishProps) => {
                             Share the work with others.
                         </span>
                         <Button
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || isLoading}
                             onClick={onPublish}
                             className="w-full text-xs"
                             size="sm"

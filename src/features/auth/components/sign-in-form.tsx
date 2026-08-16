@@ -146,7 +146,7 @@ export function SignInForm({
                                     </FieldLabel>
                                     <Link
                                         tabIndex={-1}
-                                        href="/"
+                                        href="/forgot-password"
                                         className="ml-auto text-sm text-black dark:text-white underline-offset-4 hover:underline"
                                     >
                                         Forgot your password?

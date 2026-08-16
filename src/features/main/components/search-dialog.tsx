@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery } from "convex/react";
+import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { useRouter } from "next/navigation";
 import { api } from "../../../../convex/_generated/api";
 import {
@@ -24,6 +24,7 @@ import { Id } from "../../../../convex/_generated/dataModel";
 export const SearchDialog = () => {
     const router = useRouter();
     const [isMounted, setIsMounted] = useState(false);
+    const { isAuthenticated } = useConvexAuth();
 
     const {
         onCloseSearchModal,
@@ -33,7 +34,10 @@ export const SearchDialog = () => {
     } = useSearchModal();
 
     const user = useQuery(api.public.user.getCurrentUser);
-    const documents = useQuery(api.public.documents.getSearch);
+    const documents = useQuery(
+        api.public.documents.getSearch,
+        isAuthenticated ? {} : "skip",
+    );
 
     const archive = useMutation(api.public.documents.archive);
 
@@ -72,7 +76,7 @@ export const SearchDialog = () => {
         <CommandDialog open={openSearchModal} onOpenChange={setOpenSearchModal}>
             <Command>
                 <CommandInput
-                    placeholder={`Search ${user?.name}'s Notion...`}
+                    placeholder={`Search ${user?.name || "my"}'s Notion...`}
                 />
                 <CommandList>
                     <CommandEmpty>
