@@ -44,7 +44,7 @@ export const UserMenu = ({ user }: UserMenuProps) => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
                     sideOffset={10}
-                    className="w-64 md:w-48 rounded-xl shadow-md bg-white overflow-hidden right-1 top-12 text-sm font-semibold"
+                    className="w-64 md:w-48 rounded-xl shadow-md bg-white dark:bg-black overflow-hidden right-1 top-12 text-sm font-semibold"
                 >
                     <DropdownMenuItem className="mt-2" onClick={onOpenSettingsProfileModal}>
                         <CgProfile className="size-5" />
